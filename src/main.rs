@@ -1,4 +1,4 @@
-// debug: windows_subsystem disabled
+#![cfg_attr(all(not(feature = "benchmark"), not(debug_assertions)), windows_subsystem = "windows")]
 
 use std::cell::{Cell, RefCell};
 use std::f32;
