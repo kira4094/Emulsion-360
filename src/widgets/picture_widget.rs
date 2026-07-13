@@ -710,19 +710,19 @@ impl Widget for PictureWidget {
 			playback_state,
 			data.playback_manager.shown_file_path(),
 		);
-		// Auto-detect 360-degree panorama and load/switch images
+		// Auto-detect 360-degree panorama (only when texture first loads)
+		let just_loaded = prev_texture.is_none() && new_texture.is_some();
 		if let Some(ref tex) = new_texture {
 			let is_pano = sphere_viewer::is_panorama(tex);
-			if data.sphere_viewer.is_active != is_pano {
-				data.sphere_viewer.is_active = is_pano;
-				if is_pano {
-					data.sphere_viewer.reset_view();
-				}
+			// Only auto-activate when the image first loads, not every frame
+			// (so manual toggle_pano() isn't overridden)
+			if just_loaded && is_pano {
+				data.sphere_viewer.is_active = true;
+				data.sphere_viewer.reset_view();
 				data.render_validity.invalidate();
 			}
 			// Load/reload panorama when a 360 image is displayed
-			// (handles switching between 360 photos with left/right keys)
-			if is_pano {
+			if is_pano && data.sphere_viewer.is_active {
 				let pano_path = match data.playback_manager.shown_file_path() {
 					LoadedImgPath::Loaded(p) => Some(p.clone()),
 					_ => None,
