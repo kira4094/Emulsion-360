@@ -123,7 +123,7 @@ impl SphereViewer {
 
         for cell in texture.tex_grid.iter() {
             let u_off = cell.col as f32 / grid_cols as f32;
-            let v_off = cell.row as f32 / grid_rows as f32;
+            let v_off = (grid_rows - 1 - cell.row) as f32 / grid_rows as f32;
             let u_scl = 1.0_f32 / grid_cols as f32;
             let v_scl = 1.0_f32 / grid_rows as f32;
 
@@ -180,7 +180,7 @@ fn build_sphere_mesh(cols: u32, rows: u32) -> (Vec<SphereVertex>, Vec<u32>) {
 
             vertices.push(SphereVertex {
                 position: [x, y, z],
-                tex_coords: [u, 1.0 - v],
+                tex_coords: [u, v],
             });
         }
     }
