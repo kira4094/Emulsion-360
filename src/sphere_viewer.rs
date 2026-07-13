@@ -95,6 +95,8 @@ impl SphereViewer {
             return;
         }
 
+        eprintln!("[360] Drawing sphere: yaw={:.1} pitch={:.1} fov={:.1} size={:.0}x{:.0}",
+            self.yaw, self.pitch, self.fov, size_w, size_h);
         let draw_params = glium::DrawParameters {
             viewport: Some(vp),
             depth: glium::Depth {
@@ -108,7 +110,7 @@ impl SphereViewer {
 
         // Build MVP matrix: Projection * View
         let aspect = size_w / size_h;
-        let projection = perspective(Deg(self.fov), aspect, 0.1, 100.0);
+        let projection = perspective(Deg(self.fov), aspect, 0.1_f32, 100.0_f32);
 
         // Camera is at origin, looking into the sphere
         // Rotate by yaw (around Y) then pitch (around X)
@@ -199,9 +201,11 @@ fn build_sphere_mesh(cols: u32, rows: u32) -> (Vec<SphereVertex>, Vec<u32>) {
 pub fn is_panorama(texture: &AnimationFrameTexture) -> bool {
     let (w, h) = texture.oriented_dimensions();
     if w == 0 || h == 0 {
+        eprintln!("[360] Image size: {}x{} - too small", w, h);
         return false;
     }
     let ratio = w as f32 / h as f32;
-    // Equirectangular panoramas are 2:1 ratio
-    (ratio - 2.0).abs() < 0.05 && w >= 2048
+    let is_pano = (ratio - 2.0).abs() < 0.05 && w >= 2048;
+    eprintln!("[360] Image {}x{}, ratio={:.2}, is_panorama={}", w, h, ratio, is_pano);
+    is_pano
 }
