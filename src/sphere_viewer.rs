@@ -116,9 +116,17 @@ impl SphereViewer {
 
         let mvp = projection * view;
 
-        // Render first texture cell at full UV to test baseline
-        // TODO: handle multi-cell textures for large images
-        if let Some(cell) = texture.tex_grid.first() {
+        // Render all texture cells at their correct UV positions
+        // (handles large images split into multiple GPU textures)
+        let grid_cols = texture.tex_grid.iter().map(|c| c.col).max().unwrap_or(0) + 1;
+        let grid_rows = texture.tex_grid.iter().map(|c| c.row).max().unwrap_or(0) + 1;
+
+        for cell in texture.tex_grid.iter() {
+            let u_off = cell.col as f32 / grid_cols as f32;
+            let v_off = cell.row as f32 / grid_rows as f32;
+            let u_scl = 1.0_f32 / grid_cols as f32;
+            let v_scl = 1.0_f32 / grid_rows as f32;
+
             let sampler = cell
                 .tex
                 .sampled()
@@ -130,8 +138,8 @@ impl SphereViewer {
                 matrix: Into::<[[f32; 4]; 4]>::into(mvp),
                 tex: sampler,
                 bright_shade: bright_shade,
-                u_uv_offset: [0.0, 0.0],
-                u_uv_scale: [1.0, 1.0],
+                u_uv_offset: (u_off, v_off),
+                u_uv_scale: (u_scl, v_scl),
             };
 
             target
