@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build Windows Installer
 
 on:
   workflow_dispatch:
@@ -10,54 +10,53 @@ permissions:
   contents: write
 
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
+    env:
+      INSTALLER_NAME: Emulsion-360-Windows-${{ github.ref_name }}.exe
     steps:
     - uses: actions/checkout@v4
     - uses: dtolnay/rust-toolchain@stable
+
+    - name: Install NSIS
+      shell: pwsh
+      run: |
+        iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
+        scoop bucket add extras
+        scoop install nsis
+        "$env:USERPROFILE\scoop\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+    - name: Fetch VC++ redist
+      working-directory: ./distribution/windows/prerequisites
+      shell: pwsh
+      run: |
+        (New-Object System.Net.WebClient).DownloadFile('https://aka.ms/vs/16/release/vc_redist.x64.exe', 'vc_redist.x64.exe')
+
     - name: Build
       run: cargo build --release
-    - uses: actions/upload-artifact@v4
-      with:
-        name: emulsion-windows
-        path: target/release/emulsion.exe
 
-  build-macos:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: dtolnay/rust-toolchain@stable
-    - name: Build
-      run: cargo build --release
-    - uses: actions/upload-artifact@v4
-      with:
-        name: emulsion-macos
-        path: target/release/emulsion
+    - name: Copy executable
+      working-directory: ./distribution/windows/
+      shell: cmd
+      run: |
+        mkdir program
+        copy /y ..\..\target\release\emulsion.exe program\emulsion.exe
 
-  build-linux:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: dtolnay/rust-toolchain@stable
-    - name: Build
-      run: cargo build --release
-    - uses: actions/upload-artifact@v4
-      with:
-        name: emulsion-linux
-        path: target/release/emulsion
+    - name: Create installer
+      working-directory: ./distribution/windows/
+      shell: pwsh
+      run: |
+        makensis /DVERSION=${{ github.ref_name }} emulsion.nsi
 
-  create-release:
-    needs: [build-windows, build-macos, build-linux]
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v4
+    - name: Rename installer
+      shell: pwsh
+      run: |
+        Move-Item -Path ./distribution/windows/Emulsion-Installer.exe -TargetName $env:INSTALLER_NAME
+
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
         name: Release ${{ github.ref_name }}
         draft: true
         files: |
-          emulsion-windows/emulsion.exe
-          emulsion-macos/emulsion
-          emulsion-linux/emulsion
+          ${{ env.INSTALLER_NAME }}
