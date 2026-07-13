@@ -6,7 +6,8 @@ use gelatin::glium::texture::RawImage2d;
 use gelatin::glium::{
     self, uniform,
     uniforms::{MagnifySamplerFilter, MinifySamplerFilter, SamplerWrapFunction},
-    Frame, Program, Surface, VertexBuffer, IndexBuffer, SrgbTexture2d,
+    texture::SrgbTexture2d,
+    Frame, Program, Surface, VertexBuffer, IndexBuffer,
 };
 use gelatin::DrawContext;
 use crate::image_cache::AnimationFrameTexture;
