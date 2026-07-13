@@ -51,7 +51,7 @@ jobs:
     - name: Rename installer
       shell: pwsh
       run: |
-        Move-Item -Path ./distribution/windows/Emulsion-Installer.exe -TargetName $env:INSTALLER_NAME
+        Move-Item -Path ./distribution/windows/Emulsion-Installer.exe -Destination $env:INSTALLER_NAME
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
