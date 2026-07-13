@@ -1,4 +1,4 @@
-use gelatin::cgmath::{Matrix4, Vector3, Vector2};
+use gelatin::cgmath::{Matrix4, Deg, perspective};
 use gelatin::glium::{
 	self,
 	uniform,
@@ -86,33 +86,32 @@ impl SphereViewer {
         texture: &AnimationFrameTexture,
         bright_shade: f32,
     ) {
-        let size = context.logical_viewport_size;
-        if size.x <= 0.0 || size.y <= 0.0 {
+        let vp = context.viewport;
+        let size_w = vp.width as f32;
+        let size_h = vp.height as f32;
+        if size_w <= 0.0 || size_h <= 0.0 {
             return;
         }
 
-        let viewport_rect = context.logical_rect_to_viewport(&context.logical_viewport);
         let draw_params = glium::DrawParameters {
-            viewport: Some(viewport_rect),
-            depth_test: glium::DepthTest::IfLess,
-            depth_write: true,
-            backface_culling: glium::BackfaceCulling::Back,
+            viewport: Some(*vp),
+            depth: glium::Depth {
+                test: glium::draw_parameters::DepthTest::IfLess,
+                write: true,
+                ..Default::default()
+            },
+            backface_culling: glium::BackfaceCullingMode::CullClockwise,
             ..Default::default()
         };
 
         // Build MVP matrix: Projection * View
-        let aspect = size.x / size.y;
-        let projection = cgmath::perspective(
-            cgmath::Deg(self.fov),
-            aspect,
-            0.1,
-            100.0,
-        );
+        let aspect = size_w / size_h;
+        let projection = perspective(Deg(self.fov), aspect, 0.1, 100.0);
 
         // Camera is at origin, looking into the sphere
         // Rotate by yaw (around Y) then pitch (around X)
-        let view = Matrix4::from_angle_x(cgmath::Deg(self.pitch))
-            * Matrix4::from_angle_y(cgmath::Deg(self.yaw));
+        let view = Matrix4::from_angle_x(Deg(self.pitch))
+            * Matrix4::from_angle_y(Deg(self.yaw));
 
         let mvp = projection * view;
 

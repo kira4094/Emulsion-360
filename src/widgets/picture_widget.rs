@@ -700,7 +700,7 @@ impl Widget for PictureWidget {
 			playback_state,
 			data.playback_manager.shown_file_path(),
 		);
-		// Auto-detect 360бу panorama (before texture comparison to avoid move)
+		// Auto-detect 360-degree panorama (before texture comparison to avoid move)
 		if let Some(ref tex) = new_texture {
 			let is_pano = sphere_viewer::is_panorama(tex);
 			if data.sphere_viewer.is_active != is_pano {
@@ -1123,7 +1123,7 @@ fn draw_tex_grid(
 		let sampler = sampler.magnify_filter(filter);
 
 		// building the uniforms
-		let lod_level = ((1.0 / data.img_texel_size).log2().max(0.0) + 0.125).floor();
+		let lod_level = (((1.0_f32 / data.img_texel_size).log2()).max(0.0) + 0.125).floor();
 		let uniforms = uniform! {
 			matrix: Into::<[[f32; 4]; 4]>::into(transform),
 			bright_shade: data.bright_shade,
