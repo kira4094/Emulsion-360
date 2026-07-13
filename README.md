@@ -1,47 +1,55 @@
-## About
+# Emulsion-360
 
-DISCONTINUED I do not plan to work on this project anymore.
+> **Emulsion** 是一个快速、极简的开源图片查看器（Rust 编写）。
+> **Emulsion-360** 在其基础上增加了 **360° 全景图预览**功能，支持 equirectangular 投影照片的球体内壁渲染。
 
-Refer to the [website](https://arturkovacs.github.io/emulsion-website/) for an overview.
+基于 [ArturKovacs/emulsion](https://github.com/ArturKovacs/emulsion)（v12.3）fork 并扩展。原项目已停更。
 
-Emulsion is targeting Windows, Mac, and Linux although it is currently only being tested on Linux and Windows. A note for Linux users: Wayland support is limited, so for example expect high CPU usage and the title text not being shown. However X is fully supported.
+## 新增功能
 
-Planned releases are represented with Milestones (under Issues). I try making a new release every other month or so, but don't take the deadline too seriously. If there's a feature or bugfix that's particularly interesting to you, please indicate this at the issue - a reaction like a thumbs up might just be enough but sometimes it's better to leave a comment because that's what I get a notification about.
+- **360° 全景预览** — 自动检测 2:1 比例全景图，渲染到 3D 球体内壁
+- **3D/2D 切换** — 点击底部栏圆形按钮在球体渲染和平铺视图间切换
+- **LRU 纹理缓存** — 缓存最近 3 张全景图，左右切换照片时秒开
+- **mipmap 支持** — 消除远处锯齿和闪烁
+- **鼠标操控** — 拖拽旋转视角，滚轮缩放 FOV
 
-Contribution is welcome. Feel free to post feature requests, bug reports, and make pull requests.
+![screenshot](https://github.com/kira4094/Emulsion-360/raw/master/resource/emulsion48.png)
 
-## Building and Installing
+## 构建
 
-It is recommended to use the officially provided installer found on the website and at the GitHub releases page. Although there can be a few resons why someone wants to build from source. For this, it's required to have the latest stable release of [Rust](https://www.rust-lang.org/) installed; proceed when that's done.
+需要 [Rust](https://www.rust-lang.org/) 稳定版。
 
-In many cases it's a good start to try running `cargo install emulsion`. If that build fails or if emulsion panics on startup, look into the `nix-example/emulsion/default.nix` file and locate `rpathLibs` which lists the libraries that emulsion depends on. Install the dev version of those libraries then try running the build/install again. For example on Ubuntu one can install `libXi` by running
-
-```
-sudo apt install libXi-dev
-```
-
-For the [Nix Package Manager](https://nixos.wiki/wiki/Nix) users: The Nix expressions found within `nix-example` is in theory able to build a working executable from *a* state of the emulsion source code. There is no guarantee that the built executable will be identical to any released version of emulsion. The Nix expression is provided to find the dependencies and for those who like tinkering with Nix but otherwise I advise against using it.
-
-### Notes about Cargo Features
-
-All packages on the website come with avif support, however it is not a default feature as the dependecies are not trivial to set up. If you are bulding from source (eg using `cargo install`) and would like emulsion to open avif files, I recommend taking a look at the [release workflow](.github/workflows/release-packages.yml) for steps to install the avif development dependencies.
-
-When installing Emulsion through the Windows installer, Emulsion will have networking enabled and will by default check for updates. However none of the other versions have networking and neither does the default feature-set. This also means that Emulsion will not have networking dependent capabilities when invoking
-```
-cargo install emulsion
+```bash
+git clone https://github.com/kira4094/Emulsion-360.git
+cd Emulsion-360
+cargo run --release
 ```
 
-To enable such features when installing with cargo, run
-```
-cargo install emulsion --features=networking
-```
+打开后拖入一张 equirectangular 全景照片（2:1 比例，宽≥2048px）即可自动切换到 3D 全景模式。
 
-## Reporting Bugs
+## 操作
 
-If Emulsion closed unexpectedly please locate the `"panic.txt"` file. This file has a different location depending on the target platform.
+| 操作 | 全景模式 | 普通模式 |
+|:----|:---------|:---------|
+| 左键拖拽 | 旋转视角 | 平移图片 |
+| 滚轮 | 缩放 FOV | 缩放图片 |
+| A/D 或 ←/→ | 切换照片 | 切换照片 |
+| W/S 或 ↑/↓ | 键盘旋转 | 键盘平移 |
+| 底部栏 ⬤/○ 按钮 | 切换 3D/2D 模式 | - |
+| 底部栏 ▲ 按钮 | 打开 Releases 页面 | 打开 Releases 页面 |
+| Esc | 退出全屏/退出程序 | 退出全屏/退出程序 |
 
-- Windows: `%localappdata%\emulsion\data`
-- MacOS: `$HOME/Library/Application Support/emulsion`
-- Linux: `$XDG_DATA_HOME/emulsion` or `$HOME/.local/share/emulsion`
+## 支持的格式
 
-When posting a bug report please upload the contents of this file to GitHub. If you deem it too large just paste the last panic entry between the rows of equal signs. If there's no `"panic.txt"` file, describe the scenario in which you experienced the faulty behaviour, and steps to reproduce it if you believe that could help.
+JPG, PNG, BMP, GIF, TGA, AVIF, TIFF, ICO, HDR, PBM, PAM, PPM, PGM 等。
+
+## 致谢
+
+- [ArturKovacs/emulsion](https://github.com/ArturKovacs/emulsion) — 原始项目，MIT 许可
+- 360° 全景渲染基于 OpenGL（glium）实现
+
+## 许可证
+
+MIT License。详见 [LICENSE.txt](LICENSE.txt)。
+
+原项目 [ArturKovacs/emulsion](https://github.com/ArturKovacs/emulsion) 同样使用 MIT 许可。
