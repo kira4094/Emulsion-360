@@ -756,7 +756,7 @@ impl Widget for PictureWidget {
 		if let Some(texture) = texture {
 			let data = self.data.borrow();
 			if data.sphere_viewer.is_active {
-				data.sphere_viewer.draw(target, context, &texture, data.bright_shade);
+				data.sphere_viewer.draw(target, context, &texture, data.bright_shade, &data.drawn_bounds);
 			} else {
 				draw_tex_grid(data, target, context, texture);
 			}

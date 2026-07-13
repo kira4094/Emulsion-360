@@ -1,4 +1,5 @@
 use gelatin::cgmath::{Matrix4, Deg, perspective};
+use gelatin::misc::LogicalRect;
 use gelatin::glium::{
 	self,
 	uniform,
@@ -85,8 +86,9 @@ impl SphereViewer {
         context: &DrawContext,
         texture: &AnimationFrameTexture,
         bright_shade: f32,
+        logical_bounds: &LogicalRect,
     ) {
-        let vp = context.viewport;
+        let vp = context.logical_rect_to_viewport(logical_bounds);
         let size_w = vp.width as f32;
         let size_h = vp.height as f32;
         if size_w <= 0.0 || size_h <= 0.0 {
@@ -94,13 +96,13 @@ impl SphereViewer {
         }
 
         let draw_params = glium::DrawParameters {
-            viewport: Some(*vp),
+            viewport: Some(vp),
             depth: glium::Depth {
                 test: glium::draw_parameters::DepthTest::IfLess,
                 write: true,
                 ..Default::default()
             },
-            backface_culling: glium::BackfaceCullingMode::CullClockwise,
+            backface_culling: glium::BackfaceCullingMode::CullingDisabled,
             ..Default::default()
         };
 
@@ -121,7 +123,7 @@ impl SphereViewer {
                 .tex
                 .sampled()
                 .magnify_filter(MagnifySamplerFilter::Linear)
-                .minify_filter(MinifySamplerFilter::LinearMipmapLinear)
+                .minify_filter(MinifySamplerFilter::Linear)
                 .wrap_function(SamplerWrapFunction::Clamp);
 
             let uniforms = uniform! {
@@ -168,7 +170,7 @@ fn build_sphere_mesh(cols: u32, rows: u32) -> (Vec<SphereVertex>, Vec<u32>) {
 
             vertices.push(SphereVertex {
                 position: [x, y, z],
-                tex_coords: [u, v],
+                tex_coords: [u, 1.0 - v],
             });
         }
     }
