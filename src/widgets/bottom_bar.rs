@@ -104,11 +104,9 @@ impl BottomBar {
 
 		orig_scale_button.set_margin_left(SMALL_BUTTON_GAP);
 		fit_stretch_button.set_margin_right(SMALL_BUTTON_GAP);
-		pano_button.set_margin_left(SMALL_BUTTON_GAP);
-		pano_button.set_margin_right(SMALL_BUTTON_GAP);
+		// pano sits flush between fit_stretch and slider
 		theme_button.set_margin_left(SMALL_BUTTON_GAP);
-		update_button.set_margin_left(SMALL_BUTTON_GAP);
-		update_button.set_margin_right(SMALL_BUTTON_GAP);
+		// update sits flush between theme and help
 		help_button.set_margin_left(SMALL_BUTTON_GAP);
 		help_button.set_margin_right(SMALL_BUTTON_GAP);
 
