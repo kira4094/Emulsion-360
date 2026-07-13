@@ -6,6 +6,7 @@ use gelatin::glium::{
 	uniforms::{MagnifySamplerFilter, MinifySamplerFilter, SamplerWrapFunction},
 	Frame, Program, Surface, VertexBuffer, IndexBuffer,
 };
+use std::io::Write;
 use gelatin::DrawContext;
 
 use crate::image_cache::AnimationFrameTexture;
@@ -97,6 +98,7 @@ impl SphereViewer {
 
         eprintln!("[360] Drawing sphere: yaw={:.1} pitch={:.1} fov={:.1} size={:.0}x{:.0}",
             self.yaw, self.pitch, self.fov, size_w, size_h);
+        std::io::stderr().flush().unwrap();
         let draw_params = glium::DrawParameters {
             viewport: Some(vp),
             depth: glium::Depth {
@@ -207,5 +209,6 @@ pub fn is_panorama(texture: &AnimationFrameTexture) -> bool {
     let ratio = w as f32 / h as f32;
     let is_pano = (ratio - 2.0).abs() < 0.05 && w >= 2048;
     eprintln!("[360] Image {}x{}, ratio={:.2}, is_panorama={}", w, h, ratio, is_pano);
+    std::io::stderr().flush().unwrap();
     is_pano
 }

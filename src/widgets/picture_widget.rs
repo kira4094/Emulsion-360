@@ -1,3 +1,4 @@
+use std::io::Write;
 use std::{
 	cell::{Ref, RefCell},
 	path::PathBuf,
@@ -701,6 +702,8 @@ impl Widget for PictureWidget {
 			data.playback_manager.shown_file_path(),
 		);
 		// Auto-detect 360-degree panorama (before texture comparison to avoid move)
+		eprintln!("[360] before_draw: new_texture.is_some={}", new_texture.is_some());
+		std::io::stderr().flush().unwrap();
 		if let Some(ref tex) = new_texture {
 			let is_pano = sphere_viewer::is_panorama(tex);
 			if data.sphere_viewer.is_active != is_pano {
@@ -755,6 +758,10 @@ impl Widget for PictureWidget {
 		}
 		if let Some(texture) = texture {
 			let data = self.data.borrow();
+			eprintln!("[360] DRAW: is_active={}, tex={}x{}, cell_count={}",
+				data.sphere_viewer.is_active, texture.w, texture.h, 
+				texture.tex_grid.len());
+			std::io::stderr().flush().unwrap();
 			if data.sphere_viewer.is_active {
 				data.sphere_viewer.draw(target, context, &texture, data.bright_shade, &data.drawn_bounds);
 			} else {
