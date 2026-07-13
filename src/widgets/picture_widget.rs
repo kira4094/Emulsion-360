@@ -1,4 +1,3 @@
-use std::io::Write;
 use std::{
 	cell::{Ref, RefCell},
 	path::PathBuf,
@@ -767,10 +766,6 @@ impl Widget for PictureWidget {
 		}
 		if let Some(texture) = texture {
 			let data = self.data.borrow();
-			eprintln!("[360] DRAW: is_active={}, tex={}x{}, cell_count={}",
-				data.sphere_viewer.is_active, texture.w, texture.h, 
-				texture.tex_grid.len());
-			std::io::stderr().flush().unwrap();
 			if data.sphere_viewer.is_active {
 				data.sphere_viewer.draw(target, context, &texture, data.bright_shade, &data.drawn_bounds);
 			} else {
