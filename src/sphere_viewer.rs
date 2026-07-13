@@ -84,7 +84,7 @@ impl SphereViewer {
 
     pub fn draw(
         &self, target: &mut Frame, context: &DrawContext,
-        _texture: &AnimationFrameTexture, bright_shade: f32, logical_bounds: &LogicalRect,
+        _texture: &AnimationFrameTexture, _bright_shade: f32, logical_bounds: &LogicalRect,
     ) {
         let vp = context.logical_rect_to_viewport(logical_bounds);
         if vp.width == 0 || vp.height == 0 { return; }
@@ -111,7 +111,7 @@ impl SphereViewer {
 
         let uniforms = uniform! {
             matrix: Into::<[[f32; 4]; 4]>::into(mvp),
-            tex: sampler, bright_shade: bright_shade,
+            tex: sampler,
             u_uv_offset: (0.0_f32, 0.0_f32),
             u_uv_scale: (1.0_f32, 1.0_f32),
         };
@@ -133,7 +133,7 @@ fn build_sphere_mesh(cols: u32, rows: u32) -> (Vec<SphereVertex>, Vec<u32>) {
             let lon = fu * 2.0 * std::f32::consts::PI;
             verts.push(SphereVertex {
                 position: [r * lon.sin(), y, r * lon.cos()],
-                tex_coords: [fu, 1.0 - fv],
+                tex_coords: [1.0 - fu, 1.0 - fv],
             });
         }
     }
