@@ -101,11 +101,6 @@ impl SphereViewer {
         std::io::stderr().flush().unwrap();
         let draw_params = glium::DrawParameters {
             viewport: Some(vp),
-            depth: glium::Depth {
-                test: glium::draw_parameters::DepthTest::IfLess,
-                write: true,
-                ..Default::default()
-            },
             backface_culling: glium::BackfaceCullingMode::CullingDisabled,
             ..Default::default()
         };
@@ -120,6 +115,10 @@ impl SphereViewer {
             * Matrix4::from_angle_y(Deg(self.yaw));
 
         let mvp = projection * view;
+
+        // DEBUG: mark 360 mode with red clear
+        // (remove this once rendering works)
+        target.clear_color(0.3, 0.0, 0.0, 1.0);
 
         // Render each texture cell at its correct UV position
         // (handles large images split into multiple GPU textures)
