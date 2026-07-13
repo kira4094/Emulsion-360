@@ -29,7 +29,7 @@ use gelatin::{
 use crate::{
 	clipboard_handler::ClipboardHandler,
 	configuration::{Antialias, Cache, Configuration},
-	image_cache::{image_loader::Orientation, AnimationFrameTexture},
+	image_cache::{image_loader::Orientation, AnimationFrameTexture, LoadedImgPath},
 	input_handling::*,
 	playback_manager::*,
 	sphere_viewer::{self, SphereViewer},
@@ -701,15 +701,16 @@ impl Widget for PictureWidget {
 			playback_state,
 			data.playback_manager.shown_file_path(),
 		);
-		// Auto-detect 360-degree panorama (before texture comparison to avoid move)
-		eprintln!("[360] before_draw: new_texture.is_some={}", new_texture.is_some());
-		std::io::stderr().flush().unwrap();
+		// Auto-detect 360-degree panorama
 		if let Some(ref tex) = new_texture {
 			let is_pano = sphere_viewer::is_panorama(tex);
 			if data.sphere_viewer.is_active != is_pano {
 				data.sphere_viewer.is_active = is_pano;
 				if is_pano {
 					data.sphere_viewer.reset_view();
+					if let LoadedImgPath::Loaded(ref path) = data.playback_manager.shown_file_path() {
+						data.sphere_viewer.load_panorama(window.display_mut(), path);
+					}
 				}
 				data.render_validity.invalidate();
 			}
