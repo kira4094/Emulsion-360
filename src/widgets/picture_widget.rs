@@ -134,7 +134,7 @@ struct PictureWidgetData {
 	// It's an option to allow manual destruction.
 	clipboard_handler: Option<ClipboardHandler>,
 	clipboard_request_was_pending: bool,
-n	/// 360u00b0 panorama viewer
+	/// 360-degree panorama viewer
 	sphere_viewer: SphereViewer,
 
 	program: Program,
