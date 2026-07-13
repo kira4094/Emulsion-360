@@ -794,7 +794,7 @@ impl Widget for PictureWidget {
 					if borrowed.panning_2d {
 						let delta = event.cursor_pos - borrowed.last_mouse_pos;
 						borrowed.sphere_viewer.yaw -= delta.vec.x * 0.3;
-						borrowed.sphere_viewer.pitch += delta.vec.y * 0.3;
+						borrowed.sphere_viewer.pitch -= delta.vec.y * 0.3;
 						borrowed.sphere_viewer.pitch = borrowed.sphere_viewer.pitch.clamp(-89.0, 89.0);
 						borrowed.render_validity.invalidate();
 					}
