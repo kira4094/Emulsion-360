@@ -708,8 +708,13 @@ impl Widget for PictureWidget {
 				data.sphere_viewer.is_active = is_pano;
 				if is_pano {
 					data.sphere_viewer.reset_view();
-					if let LoadedImgPath::Loaded(ref path) = data.playback_manager.shown_file_path() {
-						data.sphere_viewer.load_panorama(&window.display_mut(), path);
+					// Clone the path before loading to avoid borrow conflict
+					let pano_path = match data.playback_manager.shown_file_path() {
+						LoadedImgPath::Loaded(p) => Some(p.clone()),
+						_ => None,
+					};
+					if let Some(path) = pano_path {
+						data.sphere_viewer.load_panorama(&window.display_mut(), &path);
 					}
 				}
 				data.render_validity.invalidate();
