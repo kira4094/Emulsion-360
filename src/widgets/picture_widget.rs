@@ -543,7 +543,9 @@ impl PictureWidget {
 
 	pub fn toggle_pano(&self) {
 		let mut borrowed = self.data.borrow_mut();
-		borrowed.sphere_viewer.is_active = !borrowed.sphere_viewer.is_active;
+		let new_state = !borrowed.sphere_viewer.is_active;
+		borrowed.sphere_viewer.is_active = new_state;
+		borrowed.bottom_bar.set_pano_active(new_state);
 		borrowed.render_validity.invalidate();
 	}
 
@@ -719,6 +721,7 @@ impl Widget for PictureWidget {
 			if just_loaded && is_pano {
 				data.sphere_viewer.is_active = true;
 				data.sphere_viewer.reset_view();
+				data.bottom_bar.set_pano_active(true);
 				data.render_validity.invalidate();
 			}
 			// Load/reload panorama when a 360 image is displayed

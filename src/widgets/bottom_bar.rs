@@ -207,6 +207,10 @@ impl BottomBar {
 		self.help_button.set_bg_color(if visible { ACTIVE_BG_COLOR } else { NO_BG_COLOR })
 	}
 
+	pub fn set_pano_active(&self, active: bool) {
+		self.pano_button.set_bg_color(if active { ACTIVE_BG_COLOR } else { NO_BG_COLOR })
+	}
+
 	pub fn update_scaling_buttons(&self, scaling: ScalingMode, img_texel_size: f32) {
 		match scaling {
 			#[allow(clippy::float_cmp)]
