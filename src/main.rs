@@ -314,6 +314,12 @@ impl AppHandler {
 				picture_widget.set_img_size_to_fit(true);
 			});
 		}
+		{
+			let picture_widget = picture_widget.clone();
+			bottom_bar.pano_button.set_on_click(move || {
+				picture_widget.toggle_pano();
+			});
+		}
 		let help_visible = Cell::new(first_launch);
 		help_screen.set_visible(help_visible.get());
 		update_notification
@@ -330,6 +336,12 @@ impl AppHandler {
 				bottom_bar_clone.set_help_visible(help_visible.get());
 				update_notification
 					.set_visible(help_visible.get() && update_available.load(Ordering::SeqCst));
+			});
+		}
+
+		{
+			bottom_bar.update_button.set_on_click(move || {
+				open::that("https://github.com/kira4094/Emulsion-360/releases").unwrap();
 			});
 		}
 

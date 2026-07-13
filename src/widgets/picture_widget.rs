@@ -541,6 +541,16 @@ impl PictureWidget {
 		borrowed.set_img_size_to_fit(stretch);
 	}
 
+	pub fn toggle_pano(&self) {
+		let mut borrowed = self.data.borrow_mut();
+		borrowed.sphere_viewer.is_active = !borrowed.sphere_viewer.is_active;
+		borrowed.render_validity.invalidate();
+	}
+
+	pub fn is_pano_active(&self) -> bool {
+		self.data.borrow().sphere_viewer.is_active
+	}
+
 	pub fn jump_to_index(&self, index: u32) {
 		let mut borrowed = self.data.borrow_mut();
 		borrowed.playback_manager.request_load(LoadRequest::LoadAtIndex(index as usize));

@@ -23,6 +23,10 @@ static FIT_STRETCH: &[u8] = include_bytes!("../../resource/fit-stretch.png");
 static FIT_STRETCH_LIGHT: &[u8] = include_bytes!("../../resource/fit-stretch-light.png");
 static FIT_BEST: &[u8] = include_bytes!("../../resource/fit-min.png");
 static FIT_BEST_LIGHT: &[u8] = include_bytes!("../../resource/fit-min-light.png");
+static PANO_BTN: &[u8] = include_bytes!("../../resource/360.png");
+static PANO_BTN_LIGHT: &[u8] = include_bytes!("../../resource/360-light.png");
+static UPDATE_BTN: &[u8] = include_bytes!("../../resource/update.png");
+static UPDATE_BTN_LIGHT: &[u8] = include_bytes!("../../resource/update-light.png");
 
 const NO_BG_COLOR: [f32; 4] = [0.0, 0.0, 0.0, 0.0];
 const ACTIVE_BG_COLOR: [f32; 4] = [0.3, 0.3, 0.3, 0.5];
@@ -39,6 +43,8 @@ pub struct BottomBar {
 	pub slider: Rc<Slider>,
 	pub theme_button: Rc<Button>,
 	pub help_button: Rc<Button>,
+	pub pano_button: Rc<Button>,
+	pub update_button: Rc<Button>,
 
 	/// This is false if the configuration requires this to be invisible
 	// and true otherwise.
@@ -72,6 +78,10 @@ impl BottomBar {
 		let fit_stretch_light = Rc::new(Picture::from_encoded_bytes(FIT_STRETCH_LIGHT));
 		let fit_best = Rc::new(Picture::from_encoded_bytes(FIT_BEST));
 		let fit_best_light = Rc::new(Picture::from_encoded_bytes(FIT_BEST_LIGHT));
+		let pano_img = Rc::new(Picture::from_encoded_bytes(PANO_BTN));
+		let pano_img_light = Rc::new(Picture::from_encoded_bytes(PANO_BTN_LIGHT));
+		let update_img = Rc::new(Picture::from_encoded_bytes(UPDATE_BTN));
+		let update_img_light = Rc::new(Picture::from_encoded_bytes(UPDATE_BTN_LIGHT));
 
 		let widget = Rc::new(HorizontalLayoutContainer::new());
 		widget.set_margin_left(0.0);
@@ -85,18 +95,26 @@ impl BottomBar {
 		let slider = make_slider();
 		let theme_button = make_icon_button(Alignment::End);
 		let help_button = make_icon_button(Alignment::End);
+		let pano_button = make_icon_button(Alignment::Start);
+		let update_button = make_icon_button(Alignment::End);
 
 		orig_scale_button.set_margin_left(SMALL_BUTTON_GAP);
 		fit_stretch_button.set_margin_right(SMALL_BUTTON_GAP);
+		pano_button.set_margin_left(SMALL_BUTTON_GAP);
+		pano_button.set_margin_right(SMALL_BUTTON_GAP);
 		theme_button.set_margin_left(SMALL_BUTTON_GAP);
+		update_button.set_margin_left(SMALL_BUTTON_GAP);
+		update_button.set_margin_right(SMALL_BUTTON_GAP);
 		help_button.set_margin_left(SMALL_BUTTON_GAP);
 		help_button.set_margin_right(SMALL_BUTTON_GAP);
 
 		widget.add_child(orig_scale_button.clone());
 		widget.add_child(fit_best_button.clone());
 		widget.add_child(fit_stretch_button.clone());
+		widget.add_child(pano_button.clone());
 		widget.add_child(slider.clone());
 		widget.add_child(theme_button.clone());
+		widget.add_child(update_button.clone());
 		widget.add_child(help_button.clone());
 
 		let should_show;
@@ -115,6 +133,8 @@ impl BottomBar {
 			slider,
 			theme_button,
 			help_button,
+			pano_button,
+			update_button,
 			should_show,
 
 			question,
@@ -129,6 +149,10 @@ impl BottomBar {
 			fit_stretch_light,
 			fit_best,
 			fit_best_light,
+			pano_img,
+			pano_img_light,
+			update_img,
+			update_img_light,
 		}
 	}
 
@@ -138,6 +162,8 @@ impl BottomBar {
 				self.orig_scale_button.set_icon(Some(self.one.clone()));
 				self.fit_best_button.set_icon(Some(self.fit_best.clone()));
 				self.fit_stretch_button.set_icon(Some(self.fit_stretch.clone()));
+				self.pano_button.set_icon(Some(self.pano_img_light.clone()));
+				self.update_button.set_icon(Some(self.update_img_light.clone()));
 				self.theme_button.set_icon(Some(self.moon_img.clone()));
 				self.widget.set_bg_color([1.0, 1.0, 1.0, 1.0]);
 				self.slider.set_shadow_color([0.0, 0.0, 0.0]);
@@ -152,6 +178,8 @@ impl BottomBar {
 				self.orig_scale_button.set_icon(Some(self.one_light.clone()));
 				self.fit_best_button.set_icon(Some(self.fit_best_light.clone()));
 				self.fit_stretch_button.set_icon(Some(self.fit_stretch_light.clone()));
+				self.pano_button.set_icon(Some(self.pano_img.clone()));
+				self.update_button.set_icon(Some(self.update_img.clone()));
 				self.theme_button.set_icon(Some(self.light_img.clone()));
 				self.widget.set_bg_color([0.08, 0.08, 0.08, 1.0]);
 				self.slider.set_shadow_color([0.0, 0.0, 0.0]);
