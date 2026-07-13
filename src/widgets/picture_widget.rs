@@ -29,7 +29,7 @@ use gelatin::{
 use crate::{
 	clipboard_handler::ClipboardHandler,
 	configuration::{Antialias, Cache, Configuration},
-	image_cache::{image_loader::Orientation, AnimationFrameTexture, LoadedImgPath},
+	image_cache::{image_loader::Orientation, AnimationFrameTexture},
 	input_handling::*,
 	playback_manager::*,
 	sphere_viewer::{self, SphereViewer},
@@ -709,7 +709,7 @@ impl Widget for PictureWidget {
 				if is_pano {
 					data.sphere_viewer.reset_view();
 					if let LoadedImgPath::Loaded(ref path) = data.playback_manager.shown_file_path() {
-						data.sphere_viewer.load_panorama(window.display_mut(), path);
+						data.sphere_viewer.load_panorama(&window.display_mut(), path);
 					}
 				}
 				data.render_validity.invalidate();
