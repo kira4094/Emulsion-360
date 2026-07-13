@@ -121,8 +121,17 @@ impl SphereViewer {
 
         let mvp = projection * view;
 
-        // Use the first texture cell (most 360 photos fit in one GPU texture)
-        if let Some(cell) = texture.tex_grid.first() {
+        // Render each texture cell at its correct UV position
+        // (handles large images split into multiple GPU textures)
+        let grid_cols = (texture.w + texture.cell_step_size - 1) / texture.cell_step_size;
+        let grid_rows = (texture.h + texture.cell_step_size - 1) / texture.cell_step_size;
+
+        for cell in texture.tex_grid.iter() {
+            let u_off = cell.col as f32 / grid_cols as f32;
+            let v_off = cell.row as f32 / grid_rows as f32;
+            let u_scl = 1.0 / grid_cols as f32;
+            let v_scl = 1.0 / grid_rows as f32;
+
             let sampler = cell
                 .tex
                 .sampled()
@@ -134,6 +143,8 @@ impl SphereViewer {
                 matrix: Into::<[[f32; 4]; 4]>::into(mvp),
                 tex: sampler,
                 bright_shade: bright_shade,
+                u_uv_offset: [u_off, v_off],
+                u_uv_scale: [u_scl, v_scl],
             };
 
             target
