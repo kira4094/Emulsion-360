@@ -298,26 +298,27 @@ impl AppHandler {
 			});
 		}
 		{
-			let picture_widget = picture_widget.clone();
+			let pw = picture_widget.clone();
 			bottom_bar.orig_scale_button.set_on_click(move || {
-				picture_widget.set_img_size_to_orig();
+				pw.set_img_size_to_orig();
 			});
 		}
 		{
-			let picture_widget = picture_widget.clone();
+			let pw = picture_widget.clone();
 			bottom_bar.fit_best_button.set_on_click(move || {
-				picture_widget.set_img_size_to_fit(false);
+				pw.set_img_size_to_fit(false);
 			});
 		}
 		{
+			let pw = picture_widget.clone();
 			bottom_bar.fit_stretch_button.set_on_click(move || {
-				picture_widget.set_img_size_to_fit(true);
+				pw.set_img_size_to_fit(true);
 			});
 		}
 		{
-			let picture_widget = picture_widget.clone();
+			let pw = picture_widget.clone();
 			bottom_bar.pano_button.set_on_click(move || {
-				picture_widget.toggle_pano();
+				pw.toggle_pano();
 			});
 		}
 		let help_visible = Cell::new(first_launch);

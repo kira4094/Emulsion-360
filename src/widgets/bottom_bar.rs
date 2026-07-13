@@ -62,6 +62,10 @@ pub struct BottomBar {
 	fit_stretch_light: Rc<Picture>,
 	fit_best: Rc<Picture>,
 	fit_best_light: Rc<Picture>,
+	pano_img: Rc<Picture>,
+	pano_img_light: Rc<Picture>,
+	update_img: Rc<Picture>,
+	update_img_light: Rc<Picture>,
 }
 
 impl BottomBar {
