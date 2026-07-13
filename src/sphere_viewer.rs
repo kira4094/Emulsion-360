@@ -6,7 +6,7 @@ use gelatin::glium::texture::RawImage2d;
 use gelatin::glium::{
     self, uniform,
     uniforms::{MagnifySamplerFilter, MinifySamplerFilter, SamplerWrapFunction},
-    Frame, Program, Surface, VertexBuffer, IndexBuffer, Texture2d,
+    Frame, Program, Surface, VertexBuffer, IndexBuffer, SrgbTexture2d,
 };
 use gelatin::DrawContext;
 use crate::image_cache::AnimationFrameTexture;
@@ -26,7 +26,7 @@ pub struct SphereViewer {
     vertex_buffer: VertexBuffer<SphereVertex>,
     index_buffer: IndexBuffer<u32>,
     program: Program,
-    full_texture: Option<Texture2d>,
+    full_texture: Option<SrgbTexture2d>,
     /// File path of the currently loaded 360 image
     current_path: Option<PathBuf>,
     pub yaw: f32,
@@ -68,7 +68,7 @@ impl SphereViewer {
                 let rgba = img.into_rgba8();
                 let dims = rgba.dimensions();
                 let raw = RawImage2d::from_raw_rgba_reversed(&rgba.into_raw(), dims);
-                let tex = Texture2d::new(display, raw).unwrap();
+                let tex = SrgbTexture2d::new(display, raw).unwrap();
                 self.full_texture = Some(tex);
                 self.current_path = Some(path.clone());
                 eprintln!("[360] Loaded panorama from file: {}x{}", dims.0, dims.1);
@@ -132,7 +132,7 @@ fn build_sphere_mesh(cols: u32, rows: u32) -> (Vec<SphereVertex>, Vec<u32>) {
             let lon = fu * 2.0 * std::f32::consts::PI;
             verts.push(SphereVertex {
                 position: [r * lon.sin(), y, r * lon.cos()],
-                tex_coords: [fu, fv],
+                tex_coords: [fu, 1.0 - fv],
             });
         }
     }
