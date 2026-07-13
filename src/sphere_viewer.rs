@@ -116,21 +116,9 @@ impl SphereViewer {
 
         let mvp = projection * view;
 
-        // DEBUG: mark 360 mode with red clear
-        // (remove this once rendering works)
-        target.clear_color(0.3, 0.0, 0.0, 1.0);
-
-        // Render each texture cell at its correct UV position
-        // (handles large images split into multiple GPU textures)
-        let grid_cols = (texture.w + texture.cell_step_size - 1) / texture.cell_step_size;
-        let grid_rows = (texture.h + texture.cell_step_size - 1) / texture.cell_step_size;
-
-        for cell in texture.tex_grid.iter() {
-            let u_off = cell.col as f32 / grid_cols as f32;
-            let v_off = cell.row as f32 / grid_rows as f32;
-            let u_scl = 1.0 / grid_cols as f32;
-            let v_scl = 1.0 / grid_rows as f32;
-
+        // Render first texture cell at full UV to test baseline
+        // TODO: handle multi-cell textures for large images
+        if let Some(cell) = texture.tex_grid.first() {
             let sampler = cell
                 .tex
                 .sampled()
@@ -142,8 +130,8 @@ impl SphereViewer {
                 matrix: Into::<[[f32; 4]; 4]>::into(mvp),
                 tex: sampler,
                 bright_shade: bright_shade,
-                u_uv_offset: [u_off, v_off],
-                u_uv_scale: [u_scl, v_scl],
+                u_uv_offset: [0.0, 0.0],
+                u_uv_scale: [1.0, 1.0],
             };
 
             target
