@@ -31,6 +31,7 @@ use crate::{
 	image_cache::{image_loader::Orientation, AnimationFrameTexture},
 	input_handling::*,
 	playback_manager::*,
+	sphere_viewer::{self, SphereViewer},
 	shaders,
 	utils::virtual_keycode_to_string,
 };
@@ -133,6 +134,8 @@ struct PictureWidgetData {
 	// It's an option to allow manual destruction.
 	clipboard_handler: Option<ClipboardHandler>,
 	clipboard_request_was_pending: bool,
+n	/// 360u00b0 panorama viewer
+	sphere_viewer: SphereViewer,
 
 	program: Program,
 	bright_shade: f32,
@@ -488,6 +491,8 @@ impl PictureWidget {
 			clipboard_request_was_pending: false,
 			render_validity: Default::default(),
 
+			sphere_viewer: SphereViewer::new(display),
+
 			program,
 			bright_shade: 0.95,
 			img_texel_size: 0.0,
@@ -695,6 +700,18 @@ impl Widget for PictureWidget {
 			playback_state,
 			data.playback_manager.shown_file_path(),
 		);
+		// Auto-detect 360бу panorama (before texture comparison to avoid move)
+		if let Some(ref tex) = new_texture {
+			let is_pano = sphere_viewer::is_panorama(tex);
+			if data.sphere_viewer.is_active != is_pano {
+				data.sphere_viewer.is_active = is_pano;
+				if is_pano {
+					data.sphere_viewer.reset_view();
+				}
+				data.render_validity.invalidate();
+			}
+		}
+
 		if prev_texture.is_none() != new_texture.is_none() {
 			data.render_validity.invalidate();
 		} else if let (Some(prev_tex), Some(new_tex)) = (prev_texture, new_texture) {
@@ -738,7 +755,11 @@ impl Widget for PictureWidget {
 		}
 		if let Some(texture) = texture {
 			let data = self.data.borrow();
-			draw_tex_grid(data, target, context, texture);
+			if data.sphere_viewer.is_active {
+				data.sphere_viewer.draw(target, context, &texture, data.bright_shade);
+			} else {
+				draw_tex_grid(data, target, context, texture);
+			}
 		}
 		let borrowed = self.data.borrow();
 		Ok(borrowed.next_update)
@@ -758,7 +779,15 @@ impl Widget for PictureWidget {
 			EventKind::MouseMove => {
 				let mut borrowed = self.data.borrow_mut();
 				borrowed.hover = borrowed.drawn_bounds.contains(event.cursor_pos);
-				if borrowed.panning_2d || borrowed.panning_hor || borrowed.panning_vert {
+				if borrowed.sphere_viewer.is_active {
+					if borrowed.panning_2d {
+						let delta = event.cursor_pos - borrowed.last_mouse_pos;
+						borrowed.sphere_viewer.yaw += delta.vec.x * 0.3;
+						borrowed.sphere_viewer.pitch -= delta.vec.y * 0.3;
+						borrowed.sphere_viewer.pitch = borrowed.sphere_viewer.pitch.clamp(-89.0, 89.0);
+						borrowed.render_validity.invalidate();
+					}
+				} else if borrowed.panning_2d || borrowed.panning_hor || borrowed.panning_vert {
 					let mut delta = event.cursor_pos - borrowed.last_mouse_pos;
 					if !borrowed.panning_2d {
 						if !borrowed.panning_hor {
@@ -788,7 +817,7 @@ impl Widget for PictureWidget {
 					} else {
 						borrowed.panning_2d = false;
 						borrowed.click = false;
-						if borrowed.hover {
+						if borrowed.hover && !borrowed.sphere_viewer.is_active {
 							let now = Instant::now();
 							let duration_since_last_click =
 								now.duration_since(borrowed.last_click_time);
@@ -816,8 +845,14 @@ impl Widget for PictureWidget {
 			},
 			EventKind::MouseScroll { delta } => {
 				let mut borrowed = self.data.borrow_mut();
-				let delta = delta.vec.y * 0.375;
-				borrowed.zoom_image(event.cursor_pos, delta);
+				if borrowed.sphere_viewer.is_active {
+					borrowed.sphere_viewer.fov = (borrowed.sphere_viewer.fov - delta.vec.y * 2.0)
+						.clamp(20.0, 120.0);
+					borrowed.render_validity.invalidate();
+				} else {
+					let delta = delta.vec.y * 0.375;
+					borrowed.zoom_image(event.cursor_pos, delta);
+				}
 			}
 			EventKind::KeyInput { ref input } => {
 				let key = input.key_without_modifiers();

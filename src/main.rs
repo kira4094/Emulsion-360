@@ -51,6 +51,7 @@ mod input_handling;
 mod parallel_action;
 mod playback_manager;
 mod shaders;
+mod sphere_viewer;
 mod utils;
 mod version;
 mod widgets;
